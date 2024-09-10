@@ -1,10 +1,8 @@
 import {
     NavigationMenu,
-    NavigationMenuContent,
     NavigationMenuItem,
     NavigationMenuLink,
     NavigationMenuList,
-    NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
 
 export function Header() {
@@ -13,10 +11,9 @@ export function Header() {
             <NavigationMenu>
                 <NavigationMenuList>
                     <NavigationMenuItem>
-                        <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-                        <NavigationMenuContent>
-                            <NavigationMenuLink>Link</NavigationMenuLink>
-                        </NavigationMenuContent>
+                        <NavigationMenuLink href={'#'} className="px-5 bg-white rounded-md block text-4xl font-bold text-blue-500">
+                            Voca
+                        </NavigationMenuLink>
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
