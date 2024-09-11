@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(request: NextRequest) {
   try {
-    const genAI = new GoogleGenerativeAI(process.local.env.GEMINI_API_KEY || '')
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
     const model = genAI.getGenerativeModel({ model: "gemini-pro" })
     const res = await request.json()
     const promt = `Give me mean of ${res.text} in all type of its wordform`
