@@ -3,24 +3,43 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
-import { KeyboardEvent, useState } from "react"
+import { KeyboardEvent, useEffect, useState } from "react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { WordData } from "./types"
+
 
 export default function Home() {
   const [input, setInput] = useState('')
+  const [word, setWord] = useState<WordData>()
+
   const handleSubmitSearch = async () => {
     if (!input) return
 
-    const res = await fetch('http://localhost:3000/api/vocabularies', {
-      method: 'POST',
+    const res = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + input, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ text: input })
+      }
     })
     const data = await res.json()
-    console.log(data)
-    setInput('')
+    setWord(data[0])
   }
+
+  useEffect(() => {
+    console.log(word)
+    if (word?.meanings) {
+      console.log(word.meanings)
+    }
+    if (word?.phonetics) {
+      console.log(word.phonetics)
+    }
+  }, [word])
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.code != 'Enter') return
@@ -30,7 +49,7 @@ export default function Home() {
   return (
     <>
       <div className="text-center text-4xl font-semibold text-blue-500 mt-32 mb-8">
-        What word are you looking for ?
+        What are you looking for ?
       </div>
       <div className="w-1/2 mx-auto flex gap-4 items-center">
         <Input
@@ -49,6 +68,32 @@ export default function Home() {
           <FontAwesomeIcon icon={faMagnifyingGlass} className="mr-2" />
           Search
         </Button>
+      </div>
+      <div className="mt-16 flex items-center justify-center">
+        {word &&
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl text-blue-500">{word.word.charAt(0).toUpperCase() + word.word.slice(1).toLowerCase()}</CardTitle>
+              <CardDescription className="text-md text-black">{word.phonetics && word.phonetics.find((phonetic) => phonetic.text && phonetic.text != '')?.text}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {word.meanings.map((mean, index) => {
+                return (
+                  <div className="mb-4" key={index}>
+                    <p className="text-lg font-bold">{mean.partOfSpeech.charAt(0).toUpperCase() + mean.partOfSpeech.slice(1).toLowerCase()}</p>
+                    <ul>
+                      {mean.definitions.map((definition, index) => {
+                        return <li className="mt-2" key={index}>
+                          <p>- {definition.definition}</p>
+                          {definition.example && <p>Eg: {definition.example}</p>}
+                        </li>
+                      })}
+                    </ul>
+                  </div>
+                )
+              })}
+            </CardContent>
+          </Card>}
       </div>
     </>
   );
