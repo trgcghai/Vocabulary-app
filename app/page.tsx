@@ -18,17 +18,22 @@ export default function Home() {
   const [input, setInput] = useState('')
   const [word, setWord] = useState<WordData>()
 
-  const handleSubmitSearch = async () => {
-    if (!input) return
-
-    const res = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + input, {
+  const fetchWord = async (word: string) => {
+    const res = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + word, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       }
     })
-    const data = await res.json()
-    setWord(data[0])
+    if (!res) return undefined
+    return res.json()
+  }
+
+  const handleSubmitSearch = async () => {
+    if (!input) return
+
+    const data = await fetchWord(input)
+    if (data) setWord(data[0])
   }
 
   useEffect(() => {
@@ -70,8 +75,8 @@ export default function Home() {
         </Button>
       </div>
       <div className="mt-16 flex items-center justify-center">
-        {word &&
-          <Card>
+        {word ?
+          <Card className="max-w-3xl">
             <CardHeader>
               <CardTitle className="text-xl text-blue-500">{word.word.charAt(0).toUpperCase() + word.word.slice(1).toLowerCase()}</CardTitle>
               <CardDescription className="text-md text-black">{word.phonetics && word.phonetics.find((phonetic) => phonetic.text && phonetic.text != '')?.text}</CardDescription>
@@ -93,7 +98,14 @@ export default function Home() {
                 )
               })}
             </CardContent>
-          </Card>}
+          </Card>
+          :
+          <Card className="max-w-3xl" style={{ width: '768px' }}>
+            <CardHeader>
+              <CardTitle className="text-2xl text-center text-black">There is no word like that. Your typo might be wrong</CardTitle>
+            </CardHeader>
+          </Card>
+        }
       </div>
     </>
   );
