@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
-import { KeyboardEvent, useEffect, useState } from "react"
+import { KeyboardEvent, useState } from "react"
 import {
   Card,
   CardContent,
@@ -12,20 +12,25 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { WordData } from "./types"
+import { Toaster } from "@/components/ui/toaster"
+import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 
 export default function Home() {
   const [input, setInput] = useState('')
   const [word, setWord] = useState<WordData>()
+  const { toast } = useToast()
 
   const fetchWord = async (word: string) => {
-    const res = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + word, {
-      method: 'GET',
+    const res = await fetch('http://localhost:3000/api/vocabularies', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
+      body: JSON.stringify({ word })
     })
-    if (!res) return undefined
+    if (!res.ok) return undefined
     return res.json()
   }
 
@@ -33,18 +38,21 @@ export default function Home() {
     if (!input) return
 
     const data = await fetchWord(input)
-    if (data) setWord(data[0])
-  }
+    console.log("check data >> ", data)
+    if (!data.ok) {
+      toast({
+        className: cn(
+          'top-0 right-0 flex fixed md:max-w-[420px] md:top-4 md:right-4'
+        ),
+        title: 'Chúng tôi không tìm được định nghĩa nào phù hợp với ' + input,
+        duration: 3000,
+      })
+    } else {
+      setWord(data.data[0])
+    }
 
-  useEffect(() => {
-    console.log(word)
-    if (word?.meanings) {
-      console.log(word.meanings)
-    }
-    if (word?.phonetics) {
-      console.log(word.phonetics)
-    }
-  }, [word])
+    setInput("")
+  }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.code != 'Enter') return
@@ -75,8 +83,8 @@ export default function Home() {
         </Button>
       </div>
       <div className="mt-16 flex items-center justify-center">
-        {word ?
-          <Card className="max-w-3xl">
+        {word &&
+          <Card style={{ width: '768px' }}>
             <CardHeader>
               <CardTitle className="text-xl text-blue-500">{word.word.charAt(0).toUpperCase() + word.word.slice(1).toLowerCase()}</CardTitle>
               <CardDescription className="text-md text-black">{word.phonetics && word.phonetics.find((phonetic) => phonetic.text && phonetic.text != '')?.text}</CardDescription>
@@ -99,13 +107,8 @@ export default function Home() {
               })}
             </CardContent>
           </Card>
-          :
-          <Card className="max-w-3xl" style={{ width: '768px' }}>
-            <CardHeader>
-              <CardTitle className="text-2xl text-center text-black">There is no word like that. Your typo might be wrong</CardTitle>
-            </CardHeader>
-          </Card>
         }
+        <Toaster />
       </div>
     </>
   );
