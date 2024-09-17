@@ -10,22 +10,46 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { useEffect, useState } from "react"
+import useDebounce from "@/app/_hook/useDebounce"
 
 
 export default function Translate() {
     const [translate, setTranslate] = useState('')
     const [translated, setTranslated] = useState('')
     const [language, setLanguage] = useState({ from: 'AutoDetected', to: 'ChoseLanguage' })
-
-    useEffect(() => {
-        console.log(language)
-    }, [language])
+    const debounceTranslate = useDebounce(translate, 1000)
 
     const handleSwapLang = () => {
         const { from, to } = language
         if (from == 'AutoDetected' || to == 'ChoseLanguage') return
         setLanguage({ ...language, from: to, to: from })
     }
+
+    const fetchTranslate = async (text: string) => {
+        const res = await fetch('http://localhost:3000/api/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: text.trim(), from: language.from, to: language.to })
+        })
+        if (!res.ok) return undefined
+        return res.json()
+    }
+
+    useEffect(() => {
+        const translate = async () => {
+            if (debounceTranslate.length == 0) {
+                setTranslated('')
+                return
+            }
+            if (language.to == 'ChoseLanguage') return
+            const data = await fetchTranslate(debounceTranslate)
+            setTranslated(data.data.data.translations.translatedText)
+        }
+        translate()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debounceTranslate])
 
     return (
         <>
@@ -37,8 +61,8 @@ export default function Translate() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="AutoDetected">Tự phát hiện</SelectItem>
-                            <SelectItem value="Vietnamese">Tiếng Việt</SelectItem>
-                            <SelectItem value="English">Tiếng Anh</SelectItem>
+                            <SelectItem value="vi">Tiếng Việt</SelectItem>
+                            <SelectItem value="en">Tiếng Anh</SelectItem>
                         </SelectContent>
                     </Select>
                     <Textarea style={{ height: '700px' }} value={translate} onChange={(e) => setTranslate(e.target.value)} />
@@ -55,11 +79,11 @@ export default function Translate() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="ChoseLanguage">Chọn ngôn ngữ</SelectItem>
-                            <SelectItem value="Vietnamese">Tiếng Việt</SelectItem>
-                            <SelectItem value="English">Tiếng Anh</SelectItem>
+                            <SelectItem value="vi">Tiếng Việt</SelectItem>
+                            <SelectItem value="en">Tiếng Anh</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Textarea style={{ height: '700px' }} value={translated} onChange={(e) => setTranslated(e.target.value)} />
+                    <Textarea style={{ height: '700px' }} value={translated} onChange={(e) => setTranslate(e.target.value)} />
                 </div>
             </div>
         </>

@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { WordData } from "./types"
+import { WordData } from "../types"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
@@ -38,7 +38,6 @@ export default function Home() {
     if (!input) return
 
     const data = await fetchWord(input)
-    console.log("check data >> ", data)
     if (!data.ok) {
       toast({
         className: cn(
