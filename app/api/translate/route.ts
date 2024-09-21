@@ -1,6 +1,5 @@
 export const dynamic = "force-static";
 import { NextResponse, type NextRequest } from "next/server";
-// import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const fetchTranslate = async (text: string, source: string, target: string) => {
   const url = "https://deep-translate1.p.rapidapi.com/language/translate/v2";

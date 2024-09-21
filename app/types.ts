@@ -32,3 +32,9 @@ export interface WordData {
   license: License;
   sourceUrls: string[];
 }
+
+export interface VocabularySet {
+  id: string;
+  name: string;
+  createdAt: typeof Date;
+}

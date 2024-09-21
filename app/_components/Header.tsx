@@ -21,7 +21,7 @@ export function Header() {
                         </NavigationMenuLink>
                     </NavigationMenuItem>
                     <NavigationMenuItem>
-                        <NavigationMenuLink href={'/learn'} className="px-5 rounded-md block text-xl font-bold text-white">
+                        <NavigationMenuLink href={'/learn'} className="px-5 rounded-md text-xl font-bold text-white">
                             Learning
                         </NavigationMenuLink>
                     </NavigationMenuItem>

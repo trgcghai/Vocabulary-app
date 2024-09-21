@@ -60,7 +60,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="text-center text-4xl font-semibold text-blue-500 mt-32 mb-8">
+      <div className="text-center text-4xl font-semibold text-gray-700 mt-32 mb-8">
         What are you looking for ?
       </div>
       <div className="w-1/2 mx-auto flex gap-4 items-center">
