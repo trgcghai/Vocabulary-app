@@ -20,6 +20,11 @@ export function Header() {
                             Translator
                         </NavigationMenuLink>
                     </NavigationMenuItem>
+                    <NavigationMenuItem>
+                        <NavigationMenuLink href={'/learn'} className="px-5 rounded-md block text-xl font-bold text-white">
+                            Learning
+                        </NavigationMenuLink>
+                    </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
         </div>

@@ -51,11 +51,14 @@ export default function Translate() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debounceTranslate])
 
+
     return (
         <>
             <div className="flex justify-center gap-6 mt-20">
                 <div className="w-1/3">
-                    <Select value={language.from} onValueChange={(e) => setLanguage({ ...language, from: e })}>
+                    <Select value={language.from} onValueChange={(e) => {
+                        setLanguage({ ...language, from: e })
+                    }}>
                         <SelectTrigger className="w-full mb-4">
                             <SelectValue placeholder="Tự phát hiện" />
                         </SelectTrigger>
@@ -63,9 +66,11 @@ export default function Translate() {
                             <SelectItem value="AutoDetected">Tự phát hiện</SelectItem>
                             <SelectItem value="vi">Tiếng Việt</SelectItem>
                             <SelectItem value="en">Tiếng Anh</SelectItem>
+                            <SelectItem value="de">Tiếng Đức</SelectItem>
+                            <SelectItem value="ja">Tiếng Nhật</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Textarea style={{ height: '700px' }} value={translate} onChange={(e) => setTranslate(e.target.value)} />
+                    <Textarea style={{ height: '700px' }} value={translate} onChange={(e) => setTranslate(e.target.value)}/>
                 </div>
                 <div className="mt-2">
                     <div className="cursor-pointer" onClick={handleSwapLang}>
@@ -73,7 +78,9 @@ export default function Translate() {
                     </div>
                 </div>
                 <div className="w-1/3">
-                    <Select value={language.to} onValueChange={(e) => setLanguage({ ...language, to: e })}>
+                    <Select value={language.to} onValueChange={(e) => {
+                        setLanguage({ ...language, to: e })
+                    }}>
                         <SelectTrigger className="w-full mb-4">
                             <SelectValue placeholder="Chọn ngôn ngữ" />
                         </SelectTrigger>
@@ -81,9 +88,11 @@ export default function Translate() {
                             <SelectItem value="ChoseLanguage">Chọn ngôn ngữ</SelectItem>
                             <SelectItem value="vi">Tiếng Việt</SelectItem>
                             <SelectItem value="en">Tiếng Anh</SelectItem>
+                            <SelectItem value="de">Tiếng Đức</SelectItem>
+                            <SelectItem value="ja">Tiếng Nhật</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Textarea style={{ height: '700px' }} value={translated} onChange={(e) => setTranslate(e.target.value)} />
+                    <Textarea style={{ height: '700px' }} value={translated} onChange={(e) => setTranslated(e.target.value)} />
                 </div>
             </div>
         </>
