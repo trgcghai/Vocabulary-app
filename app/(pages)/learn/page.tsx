@@ -2,13 +2,6 @@
 import { faPlus } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import {
-    Card,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
-import Link from "next/link"
-import {
     Dialog,
     DialogContent,
     DialogHeader,
@@ -18,16 +11,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { DialogClose } from "@radix-ui/react-dialog"
-import { useEffect, useState } from "react"
-import { VocabularySet } from "@/app/types"
+import { useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useRouter } from "next/navigation"
+import useSWR, { mutate } from "swr"
+import ListVocabularySet from "./ListVocabularySet"
 
 export default function Translate() {
     const [name, setName] = useState('')
-    const [listVocabularySet, setListVocabulary] = useState([])
-    const [loading, setLoading] = useState(true)
-    const router = useRouter()
+    const [nameUpdate, setNameUpdate] = useState('')
 
     const createVocabularySet = async () => {
         const res = await fetch('http://localhost:3000/api/learn', {
@@ -41,40 +32,53 @@ export default function Translate() {
         return true
     }
 
+    const deleteVocabularySet = async (id: string) => {
+        const res = await fetch('http://localhost:3000/api/learn', {
+            method: 'DELETE',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({ id }),
+        })
+        if (!res.ok) return false
+        return true
+    }
+
+    const updateVocabulary = async (id: string) => {
+        const res = await fetch('http://localhost:3000/api/learn', {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({ id, name: nameUpdate })
+        })
+        if (!res.ok) return false
+        return true
+    }
+
     const handleSubmit = async () => {
-        const res = await createVocabularySet()
-        if (res) {
-            router.replace('/learn')
-        }
+        await createVocabularySet()
+        mutate('http://localhost:3000/api/learn')
         setName('')
     }
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString)
-        const day = String(date.getDate()).padStart(2, '0')
-        const month = String(date.getMonth()).padStart(2, '0')
-        const year = date.getFullYear()
-
-        return day + '/' + month + '/' + year
+    const handleUpdate = async (id: string) => {
+        const res = await updateVocabulary(id)
+        if (res) {
+            mutate('http://localhost:3000/api/learn')
+        }
     }
 
-    useEffect(() => {
-        const fetchVocabularySet = async () => {
-            const res = await fetch('http://localhost:3000/api/learn', {
-                method: 'GET',
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                cache: 'force-cache'
-            })
-            if (!res.ok) return undefined
-            const data = await res.json()
-            setListVocabulary(data.data)
-
-            setLoading(false)
+    const handleDelete = async (id: string) => {
+        const res = await deleteVocabularySet(id)
+        if (res) {
+            mutate('http://localhost:3000/api/learn')
         }
-        fetchVocabularySet()
-    }, [])
+    }
+
+    const fetcher = (url: string) => fetch(url).then(res => res.json())
+
+    const { data, isLoading } = useSWR('http://localhost:3000/api/learn', fetcher)
 
     return (
         <>
@@ -114,29 +118,19 @@ export default function Translate() {
                 </Dialog>
             </div>
             <div className="py-4 gap-4 grid grid-cols-12">
-                {!loading ?
-                    listVocabularySet && listVocabularySet.map((item: VocabularySet, index) => {
-                        return (
-                            <Card key={index} className="col-span-3 rounded-md border">
-                                <CardHeader>
-                                    <CardTitle>
-                                        <Link href={'/learn/vocabularyset/' + item.id}>{item.name}</Link>
-                                    </CardTitle>
-                                    <CardDescription>Tạo ngày: {formatDate(item.createdAt.toString())}</CardDescription>
-                                </CardHeader>
-                            </Card>
-                        )
-                    })
+                {!isLoading ?
+                    <ListVocabularySet
+                        listVocabularySet={data.data}
+                        nameUpdate={nameUpdate}
+                        setNameUpdate={setNameUpdate}
+                        handleDelete={handleDelete}
+                        handleUpdate={handleUpdate}
+                    />
                     :
                     <>
-                        <Skeleton className="rounded-md h-[90px] w-[370px] col-span-3 bg-gray-200" />
-                        <Skeleton className="rounded-md h-[90px] w-[370px] col-span-3 bg-gray-200" />
-                        <Skeleton className="rounded-md h-[90px] w-[370px] col-span-3 bg-gray-200" />
-                        <Skeleton className="rounded-md h-[90px] w-[370px] col-span-3 bg-gray-200" />
-                        <Skeleton className="rounded-md h-[90px] w-[370px] col-span-3 bg-gray-200" />
-                        <Skeleton className="rounded-md h-[90px] w-[370px] col-span-3 bg-gray-200" />
-                        <Skeleton className="rounded-md h-[90px] w-[370px] col-span-3 bg-gray-200" />
-                        <Skeleton className="rounded-md h-[90px] w-[370px] col-span-3 bg-gray-200" />
+                        {[0, 1, 2, 3, 4, 5, 6, 7].map((item, index) => {
+                            return (<Skeleton key={item * index} className="rounded-md h-[90px] w-[370px] col-span-3 bg-gray-200" />)
+                        })}
                     </>
                 }
             </div>
